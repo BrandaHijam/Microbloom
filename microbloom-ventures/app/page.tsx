@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <section className="space-y-12">
       {/* HERO SECTION */}
-      <div className="bg-gradient-to-r from-green-50 to-white p-10 border rounded-lg shadow-sm">
+      <div className="bg-linear-to-r from-green-50 to-white p-10 border rounded-lg shadow-sm">
         <h1 className="text-3xl md:text-4xl font-bold max-w-2xl">
           Building India’s Next-Gen Microgreens Entrepreneurs
         </h1>
