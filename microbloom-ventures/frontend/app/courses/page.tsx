@@ -1,7 +1,7 @@
 // app/courses/page.tsx
 import React from 'react';
-import CourseCard from '@/components/CourseCard';
-import { courses } from '@/lib/data/courses';
+import CourseCard from '@/frontend/components/CourseCard';
+import { courses } from '@/server/lib/data/courses';
 
 export default function CoursesPage() {
   return (

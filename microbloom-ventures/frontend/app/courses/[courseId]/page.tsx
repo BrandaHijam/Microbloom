@@ -1,6 +1,6 @@
 // app/courses/[courseId]/page.tsx
 import React from 'react';
-import { courses } from '@/lib/data/courses';
+import { courses } from '@/server/lib/data/courses';
 import { notFound } from 'next/navigation';
 
 type Props = { params: { courseId: string } };
