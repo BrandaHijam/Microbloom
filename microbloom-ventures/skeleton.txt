@@ -1,0 +1,33 @@
+microbloom-ventures/
+│
+├─ apps/
+│   ├─ frontend/
+│   │   ├─ app/
+│   │   ├─ components/
+│   │   ├─ lib/
+│   │   ├─ public/
+│   │   └─ package.json
+│   │
+│   └─ admin/                # optional
+│       ├─ app/
+│       ├─ components/
+│       └─ package.json
+│
+├─ server/
+│   ├─ src/
+│   │   ├─ controllers/
+│   │   ├─ routes/
+│   │   ├─ middleware/
+│   │   ├─ lib/
+│   │   └─ server.ts
+│   └─ package.json
+│
+├─ prisma/
+│   ├─ schema.prisma
+│   ├─ seed.ts
+│   └─ migrations/
+│
+├─ .env
+├─ .env.example
+├─ package.json               # root workspace scripts
+└─ README.md
