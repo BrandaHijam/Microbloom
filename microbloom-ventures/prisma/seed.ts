@@ -24,7 +24,8 @@ async function main() {
     create: {
       slug: "grow-lab-setup",
       title: "Grow Lab & Farm Setup",
-      description: "Turnkey grow lab installations, school labs, and commercial consultancy",
+      description:
+        "Turnkey grow lab installations, school labs, and commercial consultancy",
     },
   });
 
@@ -38,27 +39,74 @@ async function main() {
       duration: 14,
       fees: 5000,
       eligibility: "Open for all",
-      curriculum: { modules: ["Intro", "Production", "Business"] }
+      curriculum: { modules: ["Intro", "Production", "Business"] },
     },
   });
 
   await prisma.product.createMany({
     data: [
-      { sku: "MICRO-RADISH-001", title: "Radish Microgreens", priceCents: 20000, inventory: 100, category: "microgreens" },
-      { sku: "WHEATGRASS-FRESH-001", title: "Wheatgrass Fresh", priceCents: 15000, inventory: 50, category: "wheatgrass" }
+      {
+        sku: "MICRO-RADISH-001",
+        title: "Radish Microgreens",
+        priceCents: 20000,
+        inventory: 100,
+        category: "microgreens",
+      },
+      {
+        sku: "WHEATGRASS-FRESH-001",
+        title: "Wheatgrass Fresh",
+        priceCents: 15000,
+        inventory: 50,
+        category: "wheatgrass",
+      },
     ],
-    skipDuplicates: true
-  });
+      skipDuplicates: true,
+    });
+  
+    console.log("Seeding completed successfully!");
+  }
+  
+  main()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
 
-  console.log("Seed complete");
-}
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-    await pool.end();
+  /* ======================
+     INTERNSHIPS
+  ====================== */
+   /* ======================
+     INTERNSHIPS
+  ====================== */
+  await prisma.internship.createMany({
+    data: [
+      {
+        title: "Microgreens Production Internship",
+        description:
+          "Hands-on internship covering microgreens cultivation, harvesting, and packaging.",
+        location: "Gandhinagar",
+        stipend: 8000,
+        duration: 3, // months
+      },
+      {
+        title: "Urban Farming Internship",
+        description:
+          "Learn sustainable urban farming techniques and greenhouse operations.",
+        location: "Ahmedabad",
+        stipend: 6000,
+        duration: 2,
+      },
+      {
+        title: "AgriTech Research Internship",
+        description:
+          "Assist in research projects involving sensors, data collection, and modern agriculture.",
+        location: "Remote",
+        stipend: null, // unpaid / stipend TBD
+        duration: 4,
+      },
+    ],
+    skipDuplicates: true,
   });

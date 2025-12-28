@@ -134,7 +134,6 @@ model BlogPost {
 model Internship {
   id          String   @id @default(cuid())
   title       String
-  department  String
   description String   @db.Text
   location    String?
   stipend     Int?
