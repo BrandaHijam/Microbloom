@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// 👇 Load env FIRST (important for Prisma)
 dotenv.config({
-  path: path.resolve(process.cwd(), '../.env'),
+  path: path.resolve(process.cwd(), '.env'),
 });
+
+
 
 import express from 'express';
 import cors from 'cors';
@@ -22,8 +23,10 @@ import serviceRoutes from './routes/service.routes';
 import productRoutes from './routes/product.routes';
 import internshipRoutes from './routes/internship.routes';
 import appointmentRoutes from './routes/appointment.routes';
-import blogRoutes from './routes/blog.routes';
-
+import blogPublicRoutes from './routes/blog.public.routes';
+import blogAdminRoutes from './routes/blog.admin.routes';
+import enrollmentRoutes from './routes/enrollment.routes';
+import careerRoutes from './routes/career.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -56,7 +59,10 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/internships', internshipRoutes);
 app.use('/api/appointments', appointmentRoutes);
-app.use('/api/blog', blogRoutes);
+app.use("/api/blogs", blogPublicRoutes);
+app.use("/api/admin/blogs", blogAdminRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/careers', careerRoutes);
 
 /* ======================================================
    404 Handler (ALWAYS after routes)

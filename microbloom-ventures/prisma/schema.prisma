@@ -7,6 +7,10 @@ datasource db {
   provider = "postgresql"
 }
 
+/////////////////////
+// USER & ROLES
+/////////////////////
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -16,14 +20,9 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // Relations
-  orders        Order[]
-  subscriptions Subscription[]
-  appointments  DietAppointment[]
-  applications  Application[]
-
-  // Enrollment relation (opposite side)
-  enrollments Enrollment[] @relation("UserEnrollments")
+  enrollments  Enrollment[]
+  applications Application[]
+  appointments DietAppointment[]
 }
 
 enum UserRole {
@@ -31,6 +30,10 @@ enum UserRole {
   STAFF
   USER
 }
+
+/////////////////////
+// SERVICES
+/////////////////////
 
 model Service {
   id          String   @id @default(cuid())
@@ -40,6 +43,10 @@ model Service {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+/////////////////////
+// COURSES & ENROLLMENT
+/////////////////////
 
 model Course {
   id          String   @id @default(cuid())
@@ -53,70 +60,23 @@ model Course {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // enrollments relation (opposite side)
-  enrollments Enrollment[] @relation("CourseEnrollments")
+  enrollments Enrollment[]
 }
 
 model Enrollment {
-  id String @id @default(cuid())
-
-  // User relation (explicit relation name)
-  user   User   @relation("UserEnrollments", fields: [userId], references: [id])
-  userId String
-
-  // Course relation (explicit relation name)
-  course   Course @relation("CourseEnrollments", fields: [courseId], references: [id])
+  id       String @id @default(cuid())
+  userId   String
   courseId String
 
-  status    String   @default("PENDING")
-  createdAt DateTime @default(now())
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
 }
 
-model Product {
-  id          String      @id @default(cuid())
-  sku         String      @unique
-  title       String
-  description String?
-  priceCents  Int
-  inventory   Int         @default(0)
-  category    String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  orders      OrderItem[]
-}
-
-model Order {
-  id         String      @id @default(cuid())
-  user       User?       @relation(fields: [userId], references: [id])
-  userId     String?
-  totalCents Int
-  status     String      @default("PENDING")
-  stripeId   String?
-  createdAt  DateTime    @default(now())
-  items      OrderItem[]
-  shipping   Json?
-}
-
-model OrderItem {
-  id        String  @id @default(cuid())
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   String
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
-  quantity  Int
-  unitCents Int
-}
-
-model Subscription {
-  id           String    @id @default(cuid())
-  user         User      @relation(fields: [userId], references: [id])
-  userId       String
-  plan         String
-  interval     String
-  active       Boolean   @default(true)
-  nextChargeAt DateTime?
-  createdAt    DateTime  @default(now())
-}
+/////////////////////
+// BLOG
+/////////////////////
 
 model BlogPost {
   id          String    @id @default(cuid())
@@ -131,6 +91,10 @@ model BlogPost {
   updatedAt   DateTime  @updatedAt
 }
 
+/////////////////////
+// INTERNSHIPS
+/////////////////////
+
 model Internship {
   id          String   @id @default(cuid())
   title       String
@@ -140,25 +104,28 @@ model Internship {
   duration    Int?
   createdAt   DateTime @default(now())
 
-  // opposite side of Application relation
   applications Application[]
 }
 
 model Application {
   id           String      @id @default(cuid())
-  user         User?       @relation(fields: [userId], references: [id])
   userId       String?
-  internship   Internship? @relation(fields: [internshipId], references: [id])
   internshipId String?
   resumeUrl    String?
   message      String?
   status       String      @default("RECEIVED")
   createdAt    DateTime    @default(now())
+
+  user       User?       @relation(fields: [userId], references: [id])
+  internship Internship? @relation(fields: [internshipId], references: [id])
 }
+
+/////////////////////
+// DIETICIAN CONSULTING
+/////////////////////
 
 model DietAppointment {
   id          String    @id @default(cuid())
-  user        User?     @relation(fields: [userId], references: [id])
   userId      String?
   illnessType String?
   reportUrl   String?
@@ -166,4 +133,56 @@ model DietAppointment {
   scheduledAt DateTime?
   status      String    @default("REQUESTED")
   createdAt   DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+/////////////////////
+// CAREERS
+/////////////////////
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  department  String?
+  location    String?
+  description String   @db.Text
+  employment  JobType
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id        String   @id @default(cuid())
+  jobId     String
+  name      String
+  email     String
+  phone     String?
+  resumeUrl String
+  coverNote String?
+  status    String   @default("RECEIVED")
+  createdAt DateTime @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+}
+
+/////////////////////
+// HR CONTACT
+/////////////////////
+
+model HrContact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  createdAt DateTime @default(now())
 }
