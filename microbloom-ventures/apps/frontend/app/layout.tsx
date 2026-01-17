@@ -1,22 +1,19 @@
 import './globals.css';
-import React, { ReactNode } from 'react';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
 
 export const metadata = {
-  title: 'Microbloom Ventures',
-  description: "Building India's Next-Gen Microgreens Entrepreneurs",
+  title: 'Microbloom',
+  description: 'Microgreens · Training · Consultancy',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-white">
-        <Nav />
-        <main className="flex-1 w-full" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-          {children}
-        </main>
-        <Footer />
+      <body className="antialiased">
+        {children}
       </body>
     </html>
   );

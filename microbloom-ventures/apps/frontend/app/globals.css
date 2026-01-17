@@ -1,7 +1,49 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root { --container-width: 1200px; }
+/* ----------------------------
+   Base styles
+-----------------------------*/
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
 
-body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  h1, h2, h3 {
+    @apply font-semibold tracking-tight;
+  }
+
+  p {
+    @apply leading-relaxed text-slate-600;
+  }
+
+  a {
+    @apply text-green-600 hover:text-green-700 transition-colors;
+  }
+}
+
+/* ----------------------------
+   Components
+-----------------------------*/
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full
+           bg-green-600 px-6 py-3
+           text-sm font-semibold text-white
+           shadow-sm hover:bg-green-700 hover:shadow-md
+           transition-all;
+  }
+
+  .section {
+    @apply mx-auto max-w-7xl px-6 py-28;
+  }
+
+  .card {
+    @apply rounded-3xl bg-white p-8
+           border border-slate-200
+           shadow-sm hover:shadow-xl
+           hover:border-green-300
+           transition-all;
+  }
 }
