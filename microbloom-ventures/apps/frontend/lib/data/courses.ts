@@ -1,23 +1,9 @@
-export type Course = {
+export type CourseDTO = {
   id: string;
+  slug: string;
   title: string;
   description: string;
+  duration?: number | null;
+  fees?: number | null;
+  eligibility?: string | null;
 };
-
-export const courses: Course[] = [
-  {
-    id: 'microgreens',
-    title: 'Microgreens Certification Program',
-    description: 'Hands-on commercial microgreens training.',
-  },
-  {
-    id: 'urban-farming',
-    title: 'Urban Farming Masterclass',
-    description: 'Sustainable food production for urban spaces.',
-  },
-  {
-    id: 'nutrition',
-    title: 'Nutrition & Diet Planning',
-    description: 'Foundations of plant-based nutrition.',
-  },
-];
