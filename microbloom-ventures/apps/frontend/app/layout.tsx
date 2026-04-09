@@ -1,8 +1,9 @@
-import './globals.css';
+import Navbar from "@/components/NavBar";
+import "./globals.css";
 
 export const metadata = {
-  title: 'Microbloom',
-  description: 'Microgreens · Training · Consultancy',
+  title: "Microbloom",
+  description: "Microgreens · Training · Consultancy",
 };
 
 export default function RootLayout({
@@ -13,7 +14,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <Navbar />
+        <div className="pt-20">
+          {children}
+        </div>
       </body>
     </html>
   );

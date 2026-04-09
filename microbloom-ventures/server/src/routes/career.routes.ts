@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import {
   listJobs,
+  getJobById,
   createJob,
+  deactivateJob,
+  restoreJob,
+  deleteJob,
   applyJob,
   getHRContact,
   upsertHRContact,
@@ -24,6 +28,27 @@ router.get('/jobs', listJobs);
 
 /**
  * @openapi
+ * /api/careers/jobs/{id}:
+ *   get:
+ *     tags:
+ *       - Careers
+ *     summary: Get a single active job by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Job details
+ *       404:
+ *         description: Job not found
+ */
+router.get('/jobs/:id', getJobById);
+
+/**
+ * @openapi
  * /api/careers/jobs:
  *   post:
  *     tags:
@@ -40,6 +65,71 @@ router.get('/jobs', listJobs);
  *         description: Job created successfully
  */
 router.post('/jobs', createJob);
+
+/**
+ * @openapi
+ * /api/careers/jobs/{id}/deactivate:
+ *   patch:
+ *     tags:
+ *       - Careers
+ *     summary: Soft delete (deactivate) a job (Admin only)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Job deactivated successfully
+ *       404:
+ *         description: Job not found
+ */
+router.patch('/jobs/:id/deactivate', deactivateJob);
+
+/**
+ * @openapi
+ * /api/careers/jobs/{id}/restore:
+ *   patch:
+ *     tags:
+ *       - Careers
+ *     summary: Restore a deactivated job (Admin only)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Job restored successfully
+ *       404:
+ *         description: Job not found
+ */
+router.patch('/jobs/:id/restore', restoreJob);
+
+/**
+ * @openapi
+ * /api/careers/jobs/{id}:
+ *   delete:
+ *     tags:
+ *       - Careers
+ *     summary: Permanently delete a job (Admin only)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Job permanently deleted
+ *       400:
+ *         description: Cannot delete job with applications
+ *       404:
+ *         description: Job not found
+ */
+router.delete('/jobs/:id', deleteJob);
 
 /**
  * @openapi

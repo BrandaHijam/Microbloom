@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import prisma from '../lib/prisma';
 
+function getParam(param: string | string[] | undefined): string {
+  if (!param) throw new Error('Missing route parameter');
+  return Array.isArray(param) ? param[0] : param;
+}
+
 /* ======================================================
    JOBS
 ====================================================== */
@@ -15,6 +20,30 @@ export const listJobs = asyncHandler(
     });
 
     res.json({ ok: true, jobs });
+  }
+);
+
+// GET /api/careers/jobs/:id
+export const getJobById = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getParam(req.params.id);
+
+    const job = await prisma.job.findFirst({
+      where: {
+        id,
+        isActive: true,
+      },
+    });
+
+    if (!job) {
+      res.status(404).json({
+        ok: false,
+        error: 'Job not found',
+      });
+      return;
+    }
+
+    res.json({ ok: true, job });
   }
 );
 
@@ -42,6 +71,111 @@ export const createJob = asyncHandler(
     });
 
     res.status(201).json({ ok: true, job });
+  }
+);
+
+// PATCH /api/careers/jobs/:id/deactivate  (ADMIN)
+// Soft delete
+export const deactivateJob = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getParam(req.params.id);
+
+    const existing = await prisma.job.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      res.status(404).json({
+        ok: false,
+        error: 'Job not found',
+      });
+      return;
+    }
+
+    const job = await prisma.job.update({
+      where: { id },
+      data: { isActive: false },
+    });
+
+    res.json({
+      ok: true,
+      message: 'Job deactivated successfully',
+      job,
+    });
+  }
+);
+
+// PATCH /api/careers/jobs/:id/restore  (ADMIN)
+// Restore soft deleted job
+export const restoreJob = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getParam(req.params.id);
+
+    const existing = await prisma.job.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      res.status(404).json({
+        ok: false,
+        error: 'Job not found',
+      });
+      return;
+    }
+
+    const job = await prisma.job.update({
+      where: { id },
+      data: { isActive: true },
+    });
+
+    res.json({
+      ok: true,
+      message: 'Job restored successfully',
+      job,
+    });
+  }
+);
+
+// DELETE /api/careers/jobs/:id  (ADMIN)
+// Permanent delete
+export const deleteJob = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getParam(req.params.id);
+
+    const existing = await prisma.job.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      res.status(404).json({
+        ok: false,
+        error: 'Job not found',
+      });
+      return;
+    }
+
+    // Optional safety check:
+    // prevent deleting if applications exist
+    const applicationsCount = await prisma.jobApplication.count({
+      where: { jobId: id },
+    });
+
+    if (applicationsCount > 0) {
+      res.status(400).json({
+        ok: false,
+        error: 'Cannot permanently delete a job with applications. Deactivate it instead.',
+      });
+      return;
+    }
+
+    await prisma.job.delete({
+      where: { id },
+    });
+
+    res.json({
+      ok: true,
+      message: 'Job permanently deleted successfully',
+    });
   }
 );
 
@@ -96,15 +230,14 @@ export const applyJob = asyncHandler(
 // GET /api/careers/hr-contact
 export const getHRContact = asyncHandler(
   async (_req: Request, res: Response): Promise<void> => {
-    const contact = await prisma.hrContact.findFirst(
-        {
-            select: {
-                name: true,
-                email: true,
-                phone: true,
-            },
-        }
-    );
+    const contact = await prisma.hrContact.findFirst({
+      select: {
+        name: true,
+        email: true,
+        phone: true,
+      },
+    });
+
     res.json({ ok: true, contact });
   }
 );

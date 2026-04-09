@@ -16,6 +16,42 @@ export const listInternships = asyncHandler(
 );
 
 /* ======================================================
+   GET /internships/:id
+====================================================== */
+export const getInternshipById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const id = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    if (!id) {
+      res.status(400).json({
+        ok: false,
+        error: 'Invalid internship id',
+      });
+      return;
+    }
+
+    const internship = await prisma.internship.findUnique({
+      where: { id },
+    });
+
+    if (!internship) {
+      res.status(404).json({
+        ok: false,
+        error: 'Internship not found',
+      });
+      return;
+    }
+
+    res.json({
+      ok: true,
+      data: internship,
+    });
+  }
+);
+
+/* ======================================================
    POST /internships
    (Admin / internal use)
 ====================================================== */
@@ -79,13 +115,24 @@ export const apply = asyncHandler(
     res.status(201).json({ ok: true, data: application });
   }
 );
+
 /* ======================================================
    GET /internships/:id/applications
    (Admin only)
 ====================================================== */
 export const ApplicationWithUser = asyncHandler(
   async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    if (!id) {
+      res.status(400).json({
+        ok: false,
+        error: 'Invalid internship id',
+      });
+      return;
+    }
 
     const internship = await prisma.internship.findUnique({
       where: { id },
@@ -105,7 +152,10 @@ export const ApplicationWithUser = asyncHandler(
     });
 
     if (!internship) {
-      res.status(404).json({ ok: false, error: 'Internship not found' });
+      res.status(404).json({
+        ok: false,
+        error: 'Internship not found',
+      });
       return;
     }
 

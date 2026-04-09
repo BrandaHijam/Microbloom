@@ -4,6 +4,7 @@ import {
   getCourse,
   createCourse,
   getCourseBySlug,
+  deleteCourse,
 } from '../controller/course.controller';
 import { requireAuth , requireAdmin } from '../middleware/auth';
 
@@ -100,6 +101,45 @@ router.get('/slug/:slug', getCourseBySlug);
  */
 router.post('/', requireAuth, requireAdmin, createCourse);
 
+/**
+ * @openapi
+ * /api/courses/{id}:
+ *   delete:
+ *     tags:
+ *       - Courses
+ *     summary: Delete a course (Admin only)
+ *     description: Deletes a course by its ID. Requires admin privileges.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Course ID
+ *     responses:
+ *       200:
+ *         description: Course deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Course deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden (Admin only)
+ *       404:
+ *         description: Course not found
+ */
+router.delete('/:id', requireAuth, requireAdmin, deleteCourse);
 
 
 export default router;

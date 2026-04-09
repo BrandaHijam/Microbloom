@@ -36,13 +36,13 @@ import prisma from './lib/prisma';
 import authRoutes from './routes/auth.routes';
 import courseRoutes from './routes/course.routes';
 import serviceRoutes from './routes/service.routes';
-import productRoutes from './routes/product.routes';
 import internshipRoutes from './routes/internship.routes';
 import appointmentRoutes from './routes/appointment.routes';
 import blogPublicRoutes from './routes/blog.public.routes';
 import blogAdminRoutes from './routes/blog.admin.routes';
 import enrollmentRoutes from './routes/enrollment.routes';
 import careerRoutes from './routes/career.routes';
+import productRoutes from './routes/product.routes';
 
 import { errorHandler } from './middleware/errorHandler';
 
@@ -122,14 +122,13 @@ app.get('/api/health', async (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/services', serviceRoutes);
-app.use('/api/products', productRoutes);
 app.use('/api/internships', internshipRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/blogs', blogPublicRoutes);
 app.use('/api/admin/blogs', blogAdminRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/careers', careerRoutes);
-
+app.use('/api/products', productRoutes);
 /**
  * ======================================================
  * 404 Handler

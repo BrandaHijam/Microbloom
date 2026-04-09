@@ -3,6 +3,7 @@ import {
   listInternships,
   createInternship,
   apply,
+   getInternshipById,
   ApplicationWithUser,
 } from '../controller/internship.controller';
 import { requireAuth, requireAdmin } from '../middleware/auth';
@@ -95,6 +96,29 @@ router.post('/', requireAuth, requireAdmin, createInternship);
  *         description: Unauthorized
  */
 router.post('/apply', requireAuth, apply);
+
+/* ======================================================
+   GET /api/internships/{id}  (PUBLIC)
+====================================================== */
+/**
+ * @openapi
+ * /api/internships/{id}:
+ *   get:
+ *     tags: [Internships]
+ *     summary: Get internship by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Internship details
+ *       404:
+ *         description: Internship not found
+ */
+router.get('/:id', getInternshipById);
 
 /* ======================================================
    GET /api/internships/{id}/applications  (ADMIN ONLY)

@@ -11,10 +11,23 @@ const router = Router();
  * /api/blogs:
  *   get:
  *     summary: Get all published blog posts
- *     tags: [Blog]
+ *     tags:
+ *       - Blog
  *     responses:
  *       200:
- *         description: List of published blogs
+ *         description: List of published blog posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/BlogPreview'
  */
 router.get("/", getAllBlogs);
 
@@ -22,17 +35,30 @@ router.get("/", getAllBlogs);
  * @openapi
  * /api/blogs/{slug}:
  *   get:
- *     summary: Get blog by slug
- *     tags: [Blog]
+ *     summary: Get a published blog post by slug
+ *     tags:
+ *       - Blog
  *     parameters:
  *       - in: path
  *         name: slug
  *         required: true
+ *         description: Blog slug
  *         schema:
  *           type: string
+ *           example: my-first-blog
  *     responses:
  *       200:
  *         description: Blog found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/BlogDetail'
  *       404:
  *         description: Blog not found
  */

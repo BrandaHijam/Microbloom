@@ -1,7 +1,15 @@
-import { Request, Response } from 'express';
-import asyncHandler from 'express-async-handler';
-import prisma from '../lib/prisma';
-import slugify from 'slugify';
+import { Request, Response } from "express";
+import asyncHandler from "express-async-handler";
+import slugify from "slugify";
+
+import prisma from "../lib/prisma";
+import { toCourseDTO } from "../types/course.dto";
+
+/* ======================================================
+   Types for Params
+====================================================== */
+type IdParam = { id: string };
+type SlugParam = { slug: string };
 
 /* ======================================================
    GET /courses
@@ -9,10 +17,13 @@ import slugify from 'slugify';
 export const listCourses = asyncHandler(
   async (_req: Request, res: Response): Promise<void> => {
     const courses = await prisma.course.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
-    res.json({ ok: true, data: courses });
+    res.json({
+      ok: true,
+      data: courses.map(toCourseDTO),
+    });
   }
 );
 
@@ -20,48 +31,53 @@ export const listCourses = asyncHandler(
    GET /courses/:id
 ====================================================== */
 export const getCourse = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
+  async (req: Request<IdParam>, res: Response): Promise<void> => {
     const { id } = req.params;
-
-    if (!id) {
-      res.status(400).json({ ok: false, error: 'Course id is required' });
-      return;
-    }
 
     const course = await prisma.course.findUnique({
       where: { id },
     });
 
     if (!course) {
-      res.status(404).json({ ok: false, error: 'Course not found' });
+      res.status(404).json({
+        ok: false,
+        error: "Course not found",
+      });
       return;
     }
 
-    res.json({ ok: true, data: course });
+    res.json({
+      ok: true,
+      data: toCourseDTO(course),
+    });
   }
 );
 
-// GET /courses/slug/:slug
-export const getCourseBySlug = asyncHandler(async (req, res) => {
-  const { slug } = req.params;
+/* ======================================================
+   GET /courses/slug/:slug
+====================================================== */
+export const getCourseBySlug = asyncHandler(
+  async (req: Request<SlugParam>, res: Response): Promise<void> => {
+    const { slug } = req.params;
 
-  if (!slug) {
-    res.status(400).json({ ok: false, error: 'Slug is required' });
-    return;
+    const course = await prisma.course.findUnique({
+      where: { slug },
+    });
+
+    if (!course) {
+      res.status(404).json({
+        ok: false,
+        error: "Course not found",
+      });
+      return;
+    }
+
+    res.json({
+      ok: true,
+      data: toCourseDTO(course),
+    });
   }
-
-  const course = await prisma.course.findUnique({
-    where: { slug },
-  });
-
-  if (!course) {
-    res.status(404).json({ ok: false, error: 'Course not found' });
-    return;
-  }
-
-  res.json({ ok: true, data: course });
-});
-
+);
 
 /* ======================================================
    POST /courses
@@ -82,7 +98,7 @@ export const createCourse = asyncHandler(
     if (!title || !description) {
       res.status(400).json({
         ok: false,
-        error: 'title and description are required',
+        error: "title and description are required",
       });
       return;
     }
@@ -95,12 +111,13 @@ export const createCourse = asyncHandler(
     let finalSlug = baseSlug;
     let counter = 1;
 
-    // Ensure slug uniqueness
-    while (
-      await prisma.course.findUnique({
+    while (true) {
+      const existing = await prisma.course.findUnique({
         where: { slug: finalSlug },
-      })
-    ) {
+      });
+
+      if (!existing) break;
+
       finalSlug = `${baseSlug}-${counter}`;
       counter++;
     }
@@ -111,13 +128,46 @@ export const createCourse = asyncHandler(
         title,
         description,
         slug: finalSlug,
-        curriculum: curriculum ?? null,
+        curriculum: Array.isArray(curriculum) ? curriculum : [],
         duration: duration ?? null,
         fees: fees ?? null,
         eligibility: eligibility ?? null,
       },
     });
 
-    res.status(201).json({ ok: true, data: created });
+    res.status(201).json({
+      ok: true,
+      data: toCourseDTO(created),
+    });
+  }
+);
+
+/* ======================================================
+   DELETE /courses/:id
+====================================================== */
+export const deleteCourse = asyncHandler(
+  async (req: Request<IdParam>, res: Response): Promise<void> => {
+    const { id } = req.params;
+
+    const existing = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      res.status(404).json({
+        ok: false,
+        error: "Course not found",
+      });
+      return;
+    }
+
+    await prisma.course.delete({
+      where: { id },
+    });
+
+    res.json({
+      ok: true,
+      message: "Course deleted successfully",
+    });
   }
 );
