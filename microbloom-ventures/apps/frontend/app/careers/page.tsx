@@ -2,17 +2,23 @@ import JobCard from "@/components/JobCard";
 import Link from "next/link";
 
 async function getJobs() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/careers/jobs`,
-    { cache: "no-store" }
-  );
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000"}/api/careers/jobs`,
+      { next: { revalidate: 60 } }
+    );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch jobs");
+    if (!res.ok) {
+      console.error("Failed to fetch jobs (status):", res.status);
+      return [];
+    }
+
+    const json = await res.json();
+    return json.jobs ?? [];
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    return [];
   }
-
-  const json = await res.json();
-  return json.jobs;
 }
 
 const perks = [

@@ -12,17 +12,23 @@ type Course = {
 };
 
 async function getCourses(): Promise<Course[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/courses`,
-    { cache: "no-store" }
-  );
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000"}/api/courses`,
+      { next: { revalidate: 60 } }
+    );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch courses");
+    if (!res.ok) {
+      console.error("Failed to fetch courses (status):", res.status);
+      return [];
+    }
+
+    const json = await res.json();
+    return json.data ?? [];
+  } catch (err) {
+    console.error("Error fetching courses:", err);
+    return [];
   }
-
-  const json = await res.json();
-  return json.data;
 }
 
 export default async function CoursesPage() {

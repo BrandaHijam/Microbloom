@@ -2,17 +2,23 @@ import InternshipCard from "@/components/InternshipCard";
 import Link from "next/link";
 
 async function getInternships() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/internships`,
-    { cache: "no-store" }
-  );
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000"}/api/internships`,
+      { next: { revalidate: 60 } }
+    );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch internships");
+    if (!res.ok) {
+      console.error("Failed to fetch internships (status):", res.status);
+      return [];
+    }
+
+    const json = await res.json();
+    return json.data ?? [];
+  } catch (err) {
+    console.error("Error fetching internships:", err);
+    return [];
   }
-
-  const json = await res.json();
-  return json.data;
 }
 
 const highlights = [

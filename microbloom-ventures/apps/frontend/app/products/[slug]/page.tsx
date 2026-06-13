@@ -1,4 +1,5 @@
 import ProductImageSlider from "@/components/ProductImageSlider";
+import { notFound } from "next/navigation";
 
 type Product = {
   id: string;
@@ -12,7 +13,7 @@ type Product = {
   nutrition?: Record<string, string>;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
 
 const getImageUrl = (path?: string) => {
   if (!path) return "/placeholder.jpg";
@@ -20,17 +21,20 @@ const getImageUrl = (path?: string) => {
   return `${API_BASE}${path}`;
 };
 
-async function getProduct(slug: string): Promise<Product> {
-  const res = await fetch(`${API_BASE}/api/products/slug/${slug}`, {
-    cache: "no-store",
-  });
+async function getProduct(slug: string): Promise<Product | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/products/slug/${slug}`, {
+      next: { revalidate: 60 },
+    });
 
-  if (!res.ok) {
-    throw new Error("Product not found");
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    return data.data ?? null;
+  } catch (err) {
+    console.error("Error fetching product:", err);
+    return null;
   }
-
-  const data = await res.json();
-  return data.data;
 }
 
 export default async function ProductPage({
@@ -39,6 +43,8 @@ export default async function ProductPage({
   params: { slug: string };
 }) {
   const product = await getProduct(params.slug);
+
+  if (!product) return notFound();
 
   // ✅ main image always first
   const mainImage = getImageUrl(product.imageUrl);

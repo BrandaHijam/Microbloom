@@ -17,8 +17,8 @@ type Blog = {
 async function getBlog(slug: string): Promise<Blog | null> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/blogs/${slug}`,
-      { cache: "no-store" }
+      `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000"}/api/blogs/${slug}`,
+      { next: { revalidate: 60 } }
     );
 
     if (!res.ok) return null;

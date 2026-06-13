@@ -14,16 +14,21 @@ type Service = {
 };
 
 async function getService(slug: string): Promise<Service | null> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/services/slug/${slug}`,
-    { cache: "no-store" }
-  );
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000"}/api/services/slug/${slug}`,
+      { next: { revalidate: 60 } }
+    );
 
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error("Failed to fetch service");
+    if (res.status === 404) return null;
+    if (!res.ok) return null;
 
-  const json = await res.json();
-  return json.data;
+    const json = await res.json();
+    return json.data ?? null;
+  } catch (err) {
+    console.error("Error fetching service:", err);
+    return null;
+  }
 }
 
 export default async function ServiceDetailPage({
