@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import prisma from '../lib/prisma';
 import { hash, compare } from '../lib/hash';
@@ -15,16 +15,26 @@ export const signup = asyncHandler(
       return;
     }
 
-    const exists = await prisma.user.findUnique({ where: { email } });
+    const exists = await prisma.user.findUnique({
+      where: { email },
+    });
+
     if (exists) {
-      res.status(409).json({ ok: false, error: 'Email already used' });
+      res.status(409).json({
+        ok: false,
+        error: 'Email already used',
+      });
       return;
     }
 
     const passwordHash = await hash(password);
 
     const user = await prisma.user.create({
-      data: { email, name, passwordHash },
+      data: {
+        email,
+        name,
+        passwordHash,
+      },
       select: {
         id: true,
         email: true,
@@ -33,11 +43,17 @@ export const signup = asyncHandler(
       },
     });
 
-    const token = signToken({ id: user.id, role: user.role });
+    const token = signToken({
+      id: user.id,
+      role: user.role,
+    });
 
     res.status(201).json({
       ok: true,
-      data: { user, token },
+      data: {
+        user,
+        token,
+      },
     });
   }
 );
@@ -49,24 +65,39 @@ export const login = asyncHandler(
     const { password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({ ok: false, error: 'email & password required' });
+      res.status(400).json({
+        ok: false,
+        error: 'email & password required',
+      });
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
     if (!user || !user.passwordHash) {
-      res.status(401).json({ ok: false, error: 'Invalid credentials' });
+      res.status(401).json({
+        ok: false,
+        error: 'Invalid credentials',
+      });
       return;
     }
 
     const isValid = await compare(password, user.passwordHash);
+
     if (!isValid) {
-      res.status(401).json({ ok: false, error: 'Invalid credentials' });
+      res.status(401).json({
+        ok: false,
+        error: 'Invalid credentials',
+      });
       return;
     }
 
-    const token = signToken({ id: user.id, role: user.role });
+    const token = signToken({
+      id: user.id,
+      role: user.role,
+    });
 
     res.json({
       ok: true,
@@ -96,14 +127,17 @@ export const listUsers = asyncHandler(
       },
     });
 
-    res.json({ ok: true, data: users });
+    res.json({
+      ok: true,
+      data: users,
+    });
   }
 );
 
 // GET USER BY ID (ADMIN)
 export const getUserById = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = String(req.params.id);
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -118,10 +152,16 @@ export const getUserById = asyncHandler(
     });
 
     if (!user) {
-      res.status(404).json({ ok: false, error: 'User not found' });
+      res.status(404).json({
+        ok: false,
+        error: 'User not found',
+      });
       return;
     }
 
-    res.json({ ok: true, data: user });
+    res.json({
+      ok: true,
+      data: user,
+    });
   }
 );
